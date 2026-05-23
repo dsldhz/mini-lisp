@@ -13,11 +13,25 @@ public:
     virtual std::string toString() const = 0;
     virtual bool isNil() const { return false; }
     virtual bool isSelfEvaluating() const { return false; }
+    virtual bool isNumber() const { return false; }
+    virtual double asNumber() const;
     virtual std::vector<std::shared_ptr<Value>> toVector() const;
     virtual std::optional<std::string> asSymbol() const { return std::nullopt; }
 };
 
 using ValuePtr = std::shared_ptr<Value>;
+using BuiltinFuncType = ValuePtr(const std::vector<ValuePtr>&);
+
+class BuiltinProcValue : public Value {
+private:
+    BuiltinFuncType* func;
+
+public:
+    explicit BuiltinProcValue(BuiltinFuncType* func);
+    ValuePtr apply(const std::vector<ValuePtr>& params) const;
+    std::string toString() const override;
+    bool isSelfEvaluating() const override { return true; }
+};
 
 class BooleanValue : public Value {
 private:
@@ -37,6 +51,8 @@ public:
     double getValue() const;
     std::string toString() const override;
     bool isSelfEvaluating() const override { return true; }
+    bool isNumber() const override { return true; }
+    double asNumber() const override { return value; }
 };
 
 class StringValue : public Value {

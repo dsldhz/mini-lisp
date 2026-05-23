@@ -6,6 +6,10 @@
 #include <iomanip>
 #include <typeinfo>
 
+double Value::asNumber() const {
+    throw LispError("Value is not numeric.");
+}
+
 std::vector<std::shared_ptr<Value>> Value::toVector() const {
     if (isNil()) {
         return {};
@@ -25,6 +29,16 @@ std::vector<std::shared_ptr<Value>> Value::toVector() const {
     }
     
     return vec;
+}
+
+BuiltinProcValue::BuiltinProcValue(BuiltinFuncType* func) : func{func} {}
+
+ValuePtr BuiltinProcValue::apply(const std::vector<ValuePtr>& params) const {
+    return func(params);
+}
+
+std::string BuiltinProcValue::toString() const {
+    return "#<procedure>";
 }
 
 BooleanValue::BooleanValue(bool value) : value{value} {}
@@ -85,4 +99,3 @@ std::string PairValue::toString() const {
 std::ostream& operator<<(std::ostream& os, const Value& value) {
     return os << value.toString();
 }
-
