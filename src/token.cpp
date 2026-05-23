@@ -10,7 +10,7 @@ TokenPtr Token::fromChar(char c) {
     switch (c) {
         case '(': type = TokenType::LEFT_PAREN; break;
         case ')': type = TokenType::RIGHT_PAREN; break;
-        case '\'': type = TokenType::QUOTE; break;
+        case '\'': type = TokenType::QUOTE; break;//需要加入\作为转义字符来告诉编译器这是单引号字符的内容
         case '`': type = TokenType::QUASIQUOTE; break;
         case ',': type = TokenType::UNQUOTE; break;
         // DOT not listed here, because it can be part of identifier/literal.

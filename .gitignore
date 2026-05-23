@@ -411,3 +411,21 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# MAC
+.DS_Store
+
+#lv0
+lv0-answer.txt
+
+#lv1
+lv1.zip
+/lv1
+
+#lv2
+/lv2
+lv2.zip
+
+#lv3
+/lv3
+lv3.zip
