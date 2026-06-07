@@ -13,6 +13,7 @@ private:
     ValuePtr apply(ValuePtr proc, const std::vector<ValuePtr>& args);
 public:
     EvalEnv();
+    void defineBinding(const std::string& name, ValuePtr value);
     ValuePtr eval(ValuePtr expr);
 };
 

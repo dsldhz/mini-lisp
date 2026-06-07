@@ -33,6 +33,19 @@ public:
     bool isSelfEvaluating() const override { return true; }
 };
 
+class LambdaValue : public Value {
+private:
+    std::vector<std::string> params;
+    std::vector<ValuePtr> body;
+
+public:
+    LambdaValue(std::vector<std::string> params, std::vector<ValuePtr> body);
+    const std::vector<std::string>& getParams() const;
+    const std::vector<ValuePtr>& getBody() const;
+    std::string toString() const override;
+    bool isSelfEvaluating() const override { return true; }
+};
+
 class BooleanValue : public Value {
 private:
     bool value;

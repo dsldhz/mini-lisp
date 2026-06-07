@@ -221,7 +221,8 @@ ValuePtr isAtom(const std::vector<ValuePtr>& params) {
     checkArity("atom?", params, 1);
     return makeBoolean(
         !std::dynamic_pointer_cast<PairValue>(params[0]) &&
-        !std::dynamic_pointer_cast<BuiltinProcValue>(params[0])
+        !std::dynamic_pointer_cast<BuiltinProcValue>(params[0]) &&
+        !std::dynamic_pointer_cast<LambdaValue>(params[0])
     );
 }
 
@@ -257,7 +258,10 @@ ValuePtr isPair(const std::vector<ValuePtr>& params) {
 
 ValuePtr isProcedure(const std::vector<ValuePtr>& params) {
     checkArity("procedure?", params, 1);
-    return makeBoolean(static_cast<bool>(std::dynamic_pointer_cast<BuiltinProcValue>(params[0])));
+    return makeBoolean(
+        static_cast<bool>(std::dynamic_pointer_cast<BuiltinProcValue>(params[0])) ||
+        static_cast<bool>(std::dynamic_pointer_cast<LambdaValue>(params[0]))
+    );
 }
 
 ValuePtr isString(const std::vector<ValuePtr>& params) {

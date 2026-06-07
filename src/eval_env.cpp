@@ -1,16 +1,20 @@
 #include "eval_env.h"
 #include "builtins.h"
 #include "error.h"
+#include "forms.h"
 
 #include <memory>
+#include <utility>
 #include <vector>
-
-using namespace std::literals;
 
 EvalEnv::EvalEnv() {
     for (const auto& [name, func] : builtins) {
         sym_table[name] = std::make_shared<BuiltinProcValue>(func);
     }
+}
+
+void EvalEnv::defineBinding(const std::string& name, ValuePtr value) {
+    sym_table[name] = std::move(value);
 }
 
 std::vector<ValuePtr> EvalEnv::evalList(ValuePtr expr) {
@@ -42,30 +46,18 @@ ValuePtr EvalEnv::eval(ValuePtr expr) {
             throw LispError("Variable " + *name + " not defined.");
         }
     }
-    
-    std::vector<ValuePtr> v = expr->toVector();
-    if (v.empty()) {
-        throw LispError("Evaluating nil is prohibited.");
+
+    auto pair = std::dynamic_pointer_cast<PairValue>(expr);
+    if (!pair) {
+        throw LispError("Malformed expression.");
     }
-    
-    if (auto name = v[0]->asSymbol(); name == "quote"s) {
-        if (v.size() != 2) {
-            throw LispError("Malformed quote.");
-        }
-        return v[1];
-    } else if (name == "define"s) {
-        if (v.size() != 3) {
-            throw LispError("Malformed define.");
-        }
-        if (auto var_name = v[1]->asSymbol()) {
-            sym_table[*var_name] = eval(v[2]);
-            return std::make_shared<NilValue>();
-        } else {
-            throw LispError("Malformed define.");
+
+    if (auto name = pair->getLeft()->asSymbol()) {
+        if (auto it = SPECIAL_FORMS.find(*name); it != SPECIAL_FORMS.end()) {
+            return it->second(pair->getRight()->toVector(), *this);
         }
     }
 
-    auto pair = std::dynamic_pointer_cast<PairValue>(expr);
     auto proc = eval(pair->getLeft());
     auto args = evalList(pair->getRight());
     return apply(proc, args);

@@ -415,6 +415,9 @@ FodyWeavers.xsd
 # MAC
 .DS_Store
 
+#level
+/doc
+
 #lv0
 lv0-answer.txt
 
@@ -433,3 +436,7 @@ lv3.zip
 #lv4
 /lv4
 lv4.zip
+
+#lv5
+/lv5
+lv5.zip

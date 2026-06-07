@@ -5,6 +5,7 @@
 #include <sstream>
 #include <iomanip>
 #include <typeinfo>
+#include <utility>
 
 double Value::asNumber() const {
     throw LispError("Value is not numeric.");
@@ -38,6 +39,21 @@ ValuePtr BuiltinProcValue::apply(const std::vector<ValuePtr>& params) const {
 }
 
 std::string BuiltinProcValue::toString() const {
+    return "#<procedure>";
+}
+
+LambdaValue::LambdaValue(std::vector<std::string> params, std::vector<ValuePtr> body)
+    : params{std::move(params)}, body{std::move(body)} {}
+
+const std::vector<std::string>& LambdaValue::getParams() const {
+    return params;
+}
+
+const std::vector<ValuePtr>& LambdaValue::getBody() const {
+    return body;
+}
+
+std::string LambdaValue::toString() const {
     return "#<procedure>";
 }
 
