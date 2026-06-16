@@ -47,11 +47,11 @@ std::vector<std::string> parseParams(const ValuePtr& value) {
     return parseParamVector(value->toVector());
 }
 
-ValuePtr makeLambda(const ValuePtr& paramsExpr, std::vector<ValuePtr> body) {
+ValuePtr makeLambda(const ValuePtr& paramsExpr, std::vector<ValuePtr> body, EvalEnv& env) {
     if (body.empty()) {
         throw LispError("lambda expects a body.");
     }
-    return std::make_shared<LambdaValue>(parseParams(paramsExpr), std::move(body));
+    return std::make_shared<LambdaValue>(parseParams(paramsExpr), std::move(body), env.shared_from_this());
 }
 } // namespace
 
@@ -82,7 +82,14 @@ ValuePtr defineForm(const std::vector<ValuePtr>& args, EvalEnv& env) {
 
     std::vector<ValuePtr> params(signature.begin() + 1, signature.end());
     std::vector<ValuePtr> body(args.begin() + 1, args.end());
-    env.defineBinding(*name, std::make_shared<LambdaValue>(parseParamVector(params), std::move(body)));
+    env.defineBinding(
+        *name,
+        std::make_shared<LambdaValue>(
+            parseParamVector(params),
+            std::move(body),
+            env.shared_from_this()
+        )
+    );
     return makeNil();
 }
 
@@ -113,10 +120,9 @@ ValuePtr orForm(const std::vector<ValuePtr>& args, EvalEnv& env) {
 }
 
 ValuePtr lambdaForm(const std::vector<ValuePtr>& args, EvalEnv& env) {
-    (void)env;
     checkAtLeast("lambda", args, 2);
     std::vector<ValuePtr> body(args.begin() + 1, args.end());
-    return makeLambda(args[0], std::move(body));
+    return makeLambda(args[0], std::move(body), env);
 }
 
 const std::unordered_map<std::string, SpecialFormType*> SPECIAL_FORMS{

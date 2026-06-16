@@ -7,6 +7,8 @@
 #include <vector>
 #include <optional>
 
+class EvalEnv;
+
 class Value {
 public:
     virtual ~Value() = default;
@@ -37,11 +39,17 @@ class LambdaValue : public Value {
 private:
     std::vector<std::string> params;
     std::vector<ValuePtr> body;
+    std::shared_ptr<EvalEnv> env;
 
 public:
-    LambdaValue(std::vector<std::string> params, std::vector<ValuePtr> body);
+    LambdaValue(
+        std::vector<std::string> params,
+        std::vector<ValuePtr> body,
+        std::shared_ptr<EvalEnv> env
+    );
     const std::vector<std::string>& getParams() const;
     const std::vector<ValuePtr>& getBody() const;
+    ValuePtr apply(const std::vector<ValuePtr>& args) const;
     std::string toString() const override;
     bool isSelfEvaluating() const override { return true; }
 };

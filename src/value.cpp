@@ -1,4 +1,5 @@
 #include "value.h"
+#include "eval_env.h"
 #include "error.h"
 
 #include <cmath>
@@ -42,8 +43,12 @@ std::string BuiltinProcValue::toString() const {
     return "#<procedure>";
 }
 
-LambdaValue::LambdaValue(std::vector<std::string> params, std::vector<ValuePtr> body)
-    : params{std::move(params)}, body{std::move(body)} {}
+LambdaValue::LambdaValue(
+    std::vector<std::string> params,
+    std::vector<ValuePtr> body,
+    std::shared_ptr<EvalEnv> env
+)
+    : params{std::move(params)}, body{std::move(body)}, env{std::move(env)} {}
 
 const std::vector<std::string>& LambdaValue::getParams() const {
     return params;
@@ -51,6 +56,19 @@ const std::vector<std::string>& LambdaValue::getParams() const {
 
 const std::vector<ValuePtr>& LambdaValue::getBody() const {
     return body;
+}
+
+ValuePtr LambdaValue::apply(const std::vector<ValuePtr>& args) const {
+    if (!env) {
+        throw LispError("Lambda has no parent environment.");
+    }
+
+    auto localEnv = env->createChild(params, args);
+    ValuePtr result = std::make_shared<NilValue>();
+    for (const auto& expr : body) {
+        result = localEnv->eval(expr);
+    }
+    return result;
 }
 
 std::string LambdaValue::toString() const {
