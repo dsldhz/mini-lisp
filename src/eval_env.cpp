@@ -13,6 +13,7 @@ EvalEnv::EvalEnv(std::shared_ptr<EvalEnv> parent) : parent{std::move(parent)} {
             sym_table[name] = std::make_shared<BuiltinProcValue>(func);
         }
     }
+    //当 parent == nullptr 时，说明这是全局环境，构造函数会把所有内置过程加入符号表
 }
 
 std::shared_ptr<EvalEnv> EvalEnv::createGlobal() {
@@ -45,6 +46,7 @@ ValuePtr EvalEnv::lookupBinding(const std::string& name) const {
     if (parent) {
         return parent->lookupBinding(name);
     }
+    //向上追溯
     throw LispError("Variable " + name + " not defined.");
 }
 

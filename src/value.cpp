@@ -11,7 +11,7 @@
 double Value::asNumber() const {
     throw LispError("Value is not numeric.");
 }
-
+//只接受proper list，即必须以（）结尾
 std::vector<std::shared_ptr<Value>> Value::toVector() const {
     if (isNil()) {
         return {};
@@ -123,8 +123,10 @@ std::string PairValue::toString() const {
 
     if (!current || current->isNil()) {
         result += ")";
+        //列表
     } else {
         result += " . " + current->toString() + ")";
+        //带点列表
     }
 
     return result;

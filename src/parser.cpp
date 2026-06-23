@@ -29,7 +29,7 @@ ValuePtr Parser::parse() {
     } else if (token->getType() == TokenType::QUOTE) {
         return std::make_shared<PairValue>(
             std::make_shared<SymbolValue>("quote"),
-            std::make_shared<PairValue>(this->parse(), std::make_shared<NilValue>())
+            std::make_shared<PairValue>(this->parse(), std::make_shared<NilValue>())//（PairValue(parse(), NilValue())
         );
     } else if (token->getType() == TokenType::QUASIQUOTE) {
         return std::make_shared<PairValue>(
@@ -76,3 +76,5 @@ ValuePtr Parser::parseTails() {
         return std::make_shared<PairValue>(car, cdr);
     }
 }
+//(a b c)->Pair(a, Pair(b, Pair(c, Nil)))
+//(a b . c)->Pair(a, Pair(b, c))

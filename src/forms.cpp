@@ -67,6 +67,7 @@ ValuePtr defineForm(const std::vector<ValuePtr>& args, EvalEnv& env) {
     if (auto name = args[0]->asSymbol()) {
         checkArity("define", args, 2);
         env.defineBinding(*name, env.eval(args[1]));
+        //右侧表达式会立即在当前环境中求值，然后绑定结果。
         return makeNil();
     }
 
