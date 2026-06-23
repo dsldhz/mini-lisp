@@ -16,7 +16,11 @@ ValuePtr quotient(const std::vector<ValuePtr>& params);
 ValuePtr remainder(const std::vector<ValuePtr>& params);
 ValuePtr modulo(const std::vector<ValuePtr>& params);
 
+ValuePtr applyProc(const std::vector<ValuePtr>& params, EvalEnv& env);
 ValuePtr display(const std::vector<ValuePtr>& params);
+ValuePtr displayln(const std::vector<ValuePtr>& params);
+ValuePtr errorProc(const std::vector<ValuePtr>& params);
+ValuePtr evalProc(const std::vector<ValuePtr>& params, EvalEnv& env);
 ValuePtr exit(const std::vector<ValuePtr>& params);
 ValuePtr newline(const std::vector<ValuePtr>& params);
 ValuePtr print(const std::vector<ValuePtr>& params);
@@ -38,7 +42,13 @@ ValuePtr cons(const std::vector<ValuePtr>& params);
 ValuePtr length(const std::vector<ValuePtr>& params);
 ValuePtr list(const std::vector<ValuePtr>& params);
 ValuePtr append(const std::vector<ValuePtr>& params);
+ValuePtr mapProc(const std::vector<ValuePtr>& params, EvalEnv& env);
+ValuePtr filterProc(const std::vector<ValuePtr>& params, EvalEnv& env);
+ValuePtr reduceProc(const std::vector<ValuePtr>& params, EvalEnv& env);
 
+ValuePtr isEq(const std::vector<ValuePtr>& params);
+ValuePtr isEqual(const std::vector<ValuePtr>& params);
+ValuePtr notProc(const std::vector<ValuePtr>& params);
 ValuePtr numEqual(const std::vector<ValuePtr>& params);
 ValuePtr lessThan(const std::vector<ValuePtr>& params);
 ValuePtr greaterThan(const std::vector<ValuePtr>& params);
@@ -48,6 +58,6 @@ ValuePtr isEven(const std::vector<ValuePtr>& params);
 ValuePtr isOdd(const std::vector<ValuePtr>& params);
 ValuePtr isZero(const std::vector<ValuePtr>& params);
 
-extern const std::unordered_map<std::string, BuiltinFuncType*> builtins;
+extern const std::unordered_map<std::string, BuiltinFuncType> builtins;
 
 #endif

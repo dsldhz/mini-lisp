@@ -60,7 +60,7 @@ std::vector<ValuePtr> EvalEnv::evalList(ValuePtr expr) {
 
 ValuePtr EvalEnv::apply(ValuePtr proc, const std::vector<ValuePtr>& args) {
     if (auto builtin = std::dynamic_pointer_cast<BuiltinProcValue>(proc)) {
-        return builtin->apply(args);
+        return builtin->apply(args, *this);
     }
     if (auto lambda = std::dynamic_pointer_cast<LambdaValue>(proc)) {
         return lambda->apply(args);

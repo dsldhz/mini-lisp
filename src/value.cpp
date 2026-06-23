@@ -33,10 +33,10 @@ std::vector<std::shared_ptr<Value>> Value::toVector() const {
     return vec;
 }
 
-BuiltinProcValue::BuiltinProcValue(BuiltinFuncType* func) : func{func} {}
+BuiltinProcValue::BuiltinProcValue(BuiltinFuncType func) : func{std::move(func)} {}
 
-ValuePtr BuiltinProcValue::apply(const std::vector<ValuePtr>& params) const {
-    return func(params);
+ValuePtr BuiltinProcValue::apply(const std::vector<ValuePtr>& params, EvalEnv& env) const {
+    return func(params, env);
 }
 
 std::string BuiltinProcValue::toString() const {

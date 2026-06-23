@@ -4,6 +4,14 @@
 
 Parser::Parser(std::deque<TokenPtr> tokens) : tokens(std::move(tokens)) {}
 
+std::vector<ValuePtr> Parser::parseAll() {
+    std::vector<ValuePtr> result;
+    while (!tokens.empty()) {
+        result.push_back(parse());
+    }
+    return result;
+}
+
 ValuePtr Parser::parse() {
     if (tokens.empty()) {
         throw SyntaxError("Unexpected EOF");

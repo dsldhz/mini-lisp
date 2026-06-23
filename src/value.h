@@ -6,6 +6,7 @@
 #include <ostream>
 #include <vector>
 #include <optional>
+#include <functional>
 
 class EvalEnv;
 
@@ -22,15 +23,15 @@ public:
 };
 
 using ValuePtr = std::shared_ptr<Value>;
-using BuiltinFuncType = ValuePtr(const std::vector<ValuePtr>&);
+using BuiltinFuncType = std::function<ValuePtr(const std::vector<ValuePtr>&, EvalEnv&)>;
 
 class BuiltinProcValue : public Value {
 private:
-    BuiltinFuncType* func;
+    BuiltinFuncType func;
 
 public:
-    explicit BuiltinProcValue(BuiltinFuncType* func);
-    ValuePtr apply(const std::vector<ValuePtr>& params) const;
+    explicit BuiltinProcValue(BuiltinFuncType func);
+    ValuePtr apply(const std::vector<ValuePtr>& params, EvalEnv& env) const;
     std::string toString() const override;
     bool isSelfEvaluating() const override { return true; }
 };

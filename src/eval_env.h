@@ -14,7 +14,6 @@ private:
 
     explicit EvalEnv(std::shared_ptr<EvalEnv> parent);
     std::vector<ValuePtr> evalList(ValuePtr expr);
-    ValuePtr apply(ValuePtr proc, const std::vector<ValuePtr>& args);
 
 public:
     static std::shared_ptr<EvalEnv> createGlobal();
@@ -24,6 +23,7 @@ public:
     );
     void defineBinding(const std::string& name, ValuePtr value);
     ValuePtr lookupBinding(const std::string& name) const;
+    ValuePtr apply(ValuePtr proc, const std::vector<ValuePtr>& args);
     ValuePtr eval(ValuePtr expr);
 };
 

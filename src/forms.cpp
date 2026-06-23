@@ -53,6 +53,32 @@ ValuePtr makeLambda(const ValuePtr& paramsExpr, std::vector<ValuePtr> body, Eval
     }
     return std::make_shared<LambdaValue>(parseParams(paramsExpr), std::move(body), env.shared_from_this());
 }
+
+ValuePtr evalSequence(const std::vector<ValuePtr>& expressions, EvalEnv& env) {
+    ValuePtr result = makeNil();
+    for (const auto& expr : expressions) {
+        result = env.eval(expr);
+    }
+    return result;
+}
+
+ValuePtr evalQuasiquoted(const ValuePtr& value, EvalEnv& env) {
+    auto pair = std::dynamic_pointer_cast<PairValue>(value);
+    if (!pair) {
+        return value;
+    }
+
+    if (auto name = pair->getLeft()->asSymbol(); name && *name == "unquote") {
+        auto args = pair->getRight()->toVector();
+        checkArity("unquote", args, 1);
+        return env.eval(args[0]);
+    }
+
+    return std::make_shared<PairValue>(
+        evalQuasiquoted(pair->getLeft(), env),
+        evalQuasiquoted(pair->getRight(), env)
+    );
+}
 } // namespace
 
 ValuePtr quoteForm(const std::vector<ValuePtr>& args, EvalEnv& env) {
@@ -126,6 +152,71 @@ ValuePtr lambdaForm(const std::vector<ValuePtr>& args, EvalEnv& env) {
     return makeLambda(args[0], std::move(body), env);
 }
 
+ValuePtr condForm(const std::vector<ValuePtr>& args, EvalEnv& env) {
+    checkAtLeast("cond", args, 1);
+    for (std::size_t i = 0; i < args.size(); ++i) {
+        auto clause = args[i]->toVector();
+        if (clause.empty()) {
+            throw LispError("cond expects non-empty clauses.");
+        }
+
+        if (auto name = clause[0]->asSymbol(); name && *name == "else") {
+            if (i + 1 != args.size()) {
+                throw LispError("else clause must be the last cond clause.");
+            }
+            if (clause.size() == 1) {
+                throw LispError("else clause expects a body.");
+            }
+            std::vector<ValuePtr> body(clause.begin() + 1, clause.end());
+            return evalSequence(body, env);
+        }
+
+        auto condition = env.eval(clause[0]);
+        if (!isFalse(condition)) {
+            if (clause.size() == 1) {
+                return condition;
+            }
+            std::vector<ValuePtr> body(clause.begin() + 1, clause.end());
+            return evalSequence(body, env);
+        }
+    }
+    return makeNil();
+}
+
+ValuePtr beginForm(const std::vector<ValuePtr>& args, EvalEnv& env) {
+    checkAtLeast("begin", args, 1);
+    return evalSequence(args, env);
+}
+
+ValuePtr letForm(const std::vector<ValuePtr>& args, EvalEnv& env) {
+    checkAtLeast("let", args, 2);
+
+    std::vector<std::string> names;
+    std::vector<ValuePtr> values;
+    for (const auto& bindingExpr : args[0]->toVector()) {
+        auto binding = bindingExpr->toVector();
+        if (binding.size() != 2) {
+            throw LispError("let expects bindings of the form (name value).");
+        }
+        auto name = binding[0]->asSymbol();
+        if (!name) {
+            throw LispError("let expects symbol names in bindings.");
+        }
+        names.push_back(*name);
+        values.push_back(env.eval(binding[1]));
+        //在外层环境中求出所有右侧值！
+    }
+
+    auto localEnv = env.createChild(names, values);
+    std::vector<ValuePtr> body(args.begin() + 1, args.end());
+    return evalSequence(body, *localEnv);
+}
+
+ValuePtr quasiquoteForm(const std::vector<ValuePtr>& args, EvalEnv& env) {
+    checkArity("quasiquote", args, 1);
+    return evalQuasiquoted(args[0], env);
+}
+
 const std::unordered_map<std::string, SpecialFormType*> SPECIAL_FORMS{
     {"quote", &quoteForm},
     {"define", &defineForm},
@@ -133,4 +224,8 @@ const std::unordered_map<std::string, SpecialFormType*> SPECIAL_FORMS{
     {"and", &andForm},
     {"or", &orForm},
     {"lambda", &lambdaForm},
+    {"cond", &condForm},
+    {"begin", &beginForm},
+    {"let", &letForm},
+    {"quasiquote", &quasiquoteForm},
 };
